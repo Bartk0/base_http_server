@@ -2,7 +2,7 @@ import unittest
 
 import ddt
 import requests
-from main import Path, Response
+from base_http_server import Path, Response
 
 
 class TestData:

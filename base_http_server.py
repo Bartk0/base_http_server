@@ -152,7 +152,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.set_response(self.server_class.response.DEFAULT_RESPONSE)
 
 
-def run(addr, port, server_class=Server, handler_class=RequestHandler):
+def start_server(addr, port, server_class=Server, handler_class=RequestHandler):
     server_address = (addr, port)
     http_server = server_class(server_address, handler_class, Storage(), Path, Response)
     print(f"Starting server on {addr}:{port}")
@@ -176,7 +176,7 @@ def main():
         help="Specify the port which server should listen",
     )
     args = parser.parse_args()
-    run(addr=args.listen, port=args.port)
+    start_server(addr=args.listen, port=args.port)
 
 
 if __name__ == "__main__":
