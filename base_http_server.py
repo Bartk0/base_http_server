@@ -31,9 +31,10 @@ class Response:
 
 
 class Storage:
-    def __init__(self):
-        self.json = Response.INIT_JSON_DATA
-        self.xml = Response.INIT_XML_DATA
+    def __init__(self, response_data):
+        self.response_data = response_data
+        self.json = self.response_data.INIT_JSON_DATA
+        self.xml = self.response_data.INIT_XML_DATA
 
     def write_json(self, data):
         self.json = data
@@ -101,42 +102,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     def set_response(self, response):
         self.wfile.write(str(response).encode('utf8'))
 
-    def json_response(self):
-        """
-        Response with test data stored in runtime.
-        """
-        self.set_json_headers(self.response_json_data)
-        self.set_response(self.response_json_data)
-
-    def xml_response(self):
-        """
-        Response with test data stored in runtime.
-        """
-        self.set_xml_headers(self.response_xml_data)
-        self.set_response(self.response_xml_data)
-
-    def store_json_test_data(self):
-        """
-        Store test data in runtime. Use it for uploading new one.
-        """
-        success_response = self.server_class.response.GOOD_RESPONSE
-        self.set_json_headers(success_response)
-        self.set_response(success_response)
-
-        if self.headers.get('Content-Length') is not None:
-            self.server_class.storage.write_json(self.rfile.read(int(self.headers['Content-Length'])).decode())
-
-    def store_xml_test_data(self):
-        """
-        Store test data in runtime. Use it for uploading new one.
-        """
-        success_response = self.server_class.response.GOOD_RESPONSE
-        self.set_json_headers(success_response)
-        self.set_response(success_response)
-
-        if self.headers.get('Content-Length') is not None:
-            self.server_class.storage.write_xml(self.rfile.read(int(self.headers['Content-Length'])).decode())
-
     def return_health(self):
         """
         Implementation for health method and response.
@@ -151,10 +116,46 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.set_json_headers(self.server_class.response.DEFAULT_RESPONSE)
         self.set_response(self.server_class.response.DEFAULT_RESPONSE)
 
+    def json_response(self):
+        """
+        Response with json test data stored in runtime.
+        """
+        self.set_json_headers(self.response_json_data)
+        self.set_response(self.response_json_data)
+
+    def xml_response(self):
+        """
+        Response with xml test data stored in runtime.
+        """
+        self.set_xml_headers(self.response_xml_data)
+        self.set_response(self.response_xml_data)
+
+    def store_json_test_data(self):
+        """
+        Store test data in runtime. Use it to upload a new one.
+        """
+        success_response = self.server_class.response.GOOD_RESPONSE
+        self.set_json_headers(success_response)
+        self.set_response(success_response)
+
+        if self.headers.get('Content-Length') is not None:
+            self.server_class.storage.write_json(self.rfile.read(int(self.headers['Content-Length'])).decode())
+
+    def store_xml_test_data(self):
+        """
+        Store test data in runtime. Use it to upload a new one.
+        """
+        success_response = self.server_class.response.GOOD_RESPONSE
+        self.set_json_headers(success_response)
+        self.set_response(success_response)
+
+        if self.headers.get('Content-Length') is not None:
+            self.server_class.storage.write_xml(self.rfile.read(int(self.headers['Content-Length'])).decode())
+
 
 def start_server(addr, port, server_class=Server, handler_class=RequestHandler):
     server_address = (addr, port)
-    http_server = server_class(server_address, handler_class, Storage(), Path, Response)
+    http_server = server_class(server_address, handler_class, Storage(Response()), Path, Response)
     print(f"Starting server on {addr}:{port}")
     http_server.serve_forever()
 
